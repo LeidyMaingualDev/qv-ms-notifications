@@ -1,0 +1,46 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: qv-ms-notifications
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: YOUR_EMAIL@gmail.com
+    password: YOUR_APP_PASSWORD       # contraseña de aplicación de Google, no la del correo
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com     # necesario para evitar error de handshake TLS en red local
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: qv-ms-notifications
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+        prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  frontend-url: http://localhost:4200
+
+services:
+  auth:
+    url: http://localhost:8080        # qv-ms-auth — para guardar notificaciones internas
+  events:
+    url: http://localhost:8084        # qv-ms-events
