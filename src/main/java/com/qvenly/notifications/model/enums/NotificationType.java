@@ -8,6 +8,7 @@ package com.qvenly.notifications.model.enums;
 public enum NotificationType {
     // Eventos
     INVITATION_RECEIVED,
+    INVITATION_CANCELLED,
     EVENT_CANCELLED,
     EVENT_UPDATED,
     MEMBER_ROLE_CHANGED,

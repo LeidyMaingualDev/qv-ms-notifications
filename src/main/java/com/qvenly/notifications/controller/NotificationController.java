@@ -35,6 +35,15 @@ public class NotificationController {
         return ResponseEntity.ok(ApiResponse.success("Notificación de invitación procesada."));
     }
 
+    /** Invitación cancelada por el organizador */
+    @PostMapping("/invitation-cancelled")
+    public ResponseEntity<ApiResponse<Void>> invitationCancelled(
+            @Valid @RequestBody EventNotificationRequest request) {
+        log.info("Procesando notificación de cancelación de invitación: {}", request.getEventTitle());
+        notificationService.processInvitationCancelled(request);
+        return ResponseEntity.ok(ApiResponse.success("Notificación de cancelación de invitación procesada."));
+    }
+
     /** RF42.1 — Evento cancelado */
     @PostMapping("/event-cancelled")
     public ResponseEntity<ApiResponse<Void>> eventCancelled(

@@ -27,7 +27,7 @@ public class InvitationNotificationRequest {
     @NotNull
     private Long eventId;
 
-    /** Rol asignado: PARTICIPANT, JUDGE, STAFF, ATTENDEE, ORGANIZER */
+    /** Rol asignado: siempre MEMBER en el flujo actual */
     @NotBlank
     private String eventRole;
 
@@ -35,9 +35,21 @@ public class InvitationNotificationRequest {
     @NotBlank
     private String invitationToken;
 
-    /** Fecha de inicio del evento */
-    private String eventStartDatetime;
-
     /** Fecha de vencimiento de la invitación */
     private String expiresAt;
+
+    /** Descripción del evento */
+    private String eventDescription;
+
+    /** Ubicación del evento */
+    private String eventLocation;
+
+    /** Tipo de evento (conferencia, taller, etc.) */
+    private String eventType;
+
+    /** Fecha y hora de inicio del evento */
+    private String startDatetime;
+
+    /** Fecha y hora de fin del evento */
+    private String endDatetime;
 }
