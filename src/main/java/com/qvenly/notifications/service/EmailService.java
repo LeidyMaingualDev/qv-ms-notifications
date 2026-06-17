@@ -40,15 +40,35 @@ public class EmailService {
 
     @Async
     public void sendInvitationEmail(String toEmail, String toName, String eventTitle,
-                                    String eventRole, String token, String expiresAt) {
+                                    String eventRole, String token, String expiresAt,
+                                    String eventDescription, String eventLocation,
+                                    String eventType, String startDatetime, String endDatetime) {
         try {
             String link = frontendUrl + "/accept-invitation?token=" + token;
-            String rolLabel = translateRole(eventRole);
             String header = headerTitle("Tienes una invitaci&oacute;n");
+
+            String eventInfo = "<strong style=\"color:" + TEXT + ";\">" + eventTitle + "</strong>";
+            if (eventType != null && !eventType.isBlank()) {
+                eventInfo += " <span style=\"color:" + TEXT_SOFT + ";\">(" + eventType + ")</span>";
+            }
+
+            StringBuilder details = new StringBuilder();
+            if (startDatetime != null && !startDatetime.isBlank()) {
+                details.append("Inicio: ").append(startDatetime);
+            }
+            if (endDatetime != null && !endDatetime.isBlank()) {
+                details.append("<br>Fin: ").append(endDatetime);
+            }
+            if (eventLocation != null && !eventLocation.isBlank()) {
+                details.append("<br>Lugar: ").append(eventLocation);
+            }
+
             String body = greeting(toName != null ? toName : "usuario")
-                    + paragraph("Has sido invitado(a) a participar en el evento <strong style=\"color:"
-                    + TEXT + ";\">" + eventTitle + "</strong> con el rol de "
-                    + "<strong style=\"color:" + TEAL + ";\">" + rolLabel + "</strong>.")
+                    + paragraph("Has sido invitado(a) a participar en el evento " + eventInfo + ".")
+                    + (eventDescription != null && !eventDescription.isBlank()
+                    ? paragraph(eventDescription) : "")
+                    + (details.length() > 0
+                    ? infoBox(details.toString(), "#f0fdfa", "#99f6e4", TEAL_DK) : "")
                     + ctaButton(link, "Aceptar invitaci&oacute;n", TEAL)
                     + divider()
                     + fallbackLink(link, TEAL)
@@ -60,6 +80,26 @@ public class EmailService {
                     baseTemplate(TEAL, header, body));
         } catch (Exception e) {
             log.error("Error al enviar invitación a {}: {}", toEmail, e.getMessage());
+        }
+    }
+
+    // ── Invitación cancelada ────────────────────────────────────────────────────
+
+    @Async
+    public void sendInvitationCancelledEmail(String toEmail, String toName,
+                                             String eventTitle, String reason) {
+        try {
+            String header = headerTitle("Invitaci&oacute;n cancelada");
+            String body = greeting(toName != null ? toName : "usuario")
+                    + paragraph("La invitaci&oacute;n que recibiste para el evento <strong style=\"color:"
+                    + TEXT + ";\">" + eventTitle + "</strong> ha sido <strong style=\"color:" + RED
+                    + ";\">cancelada</strong> por el organizador.")
+                    + (reason != null && !reason.isBlank()
+                    ? infoBox("Motivo: " + reason, "#fef2f2", "#fecaca", RED) : "")
+                    + paragraph("Si tienes dudas, puedes contactar directamente al organizador del evento.");
+            send(toEmail, "Invitaci\u00f3n cancelada: " + eventTitle, baseTemplate(RED, header, body));
+        } catch (Exception e) {
+            log.error("Error al enviar cancelación de invitación a {}: {}", toEmail, e.getMessage());
         }
     }
 

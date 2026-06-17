@@ -33,18 +33,55 @@ public class NotificationService {
                 req.getEventTitle(),
                 req.getEventRole(),
                 req.getInvitationToken(),
-                req.getExpiresAt());
+                req.getExpiresAt(),
+                req.getEventDescription(),
+                req.getEventLocation(),
+                req.getEventType(),
+                req.getStartDatetime(),
+                req.getEndDatetime());
 
         // 2. Notificación interna solo si tiene userId (usuario registrado)
+        StringBuilder message = new StringBuilder();
+        message.append("Fuiste invitado(a) al evento '").append(req.getEventTitle()).append("'.");
+        if (req.getEventType() != null && !req.getEventType().isBlank()) {
+            message.append(" Tipo: ").append(req.getEventType()).append(".");
+        }
+        if (req.getStartDatetime() != null && !req.getStartDatetime().isBlank()) {
+            message.append(" Inicio: ").append(req.getStartDatetime()).append(".");
+        }
+        if (req.getEventLocation() != null && !req.getEventLocation().isBlank()) {
+            message.append(" Lugar: ").append(req.getEventLocation()).append(".");
+        }
+
         authClient.saveInternalNotification(InternalNotificationRequestDTO.builder()
                 .userId(req.getInvitedUserId())
                 .recipientEmail(req.getInvitedEmail())
                 .recipientName(req.getInvitedName())
                 .type(NotificationType.INVITATION_RECEIVED.name())
                 .title("Invitación a evento: " + req.getEventTitle())
-                .message("Fuiste invitado(a) al evento '" + req.getEventTitle()
-                        + "' como " + req.getEventRole() + ".")
+                .message(message.toString())
                 .build());
+    }
+
+    // ── Invitación cancelada ────────────────────────────────────────────────────
+
+    public void processInvitationCancelled(EventNotificationRequest req) {
+        for (EventNotificationRequest.Recipient r : req.getRecipients()) {
+            emailService.sendInvitationCancelledEmail(
+                    r.getEmail(), r.getName(), req.getEventTitle(), req.getDetail());
+
+            authClient.saveInternalNotification(InternalNotificationRequestDTO.builder()
+                    .userId(r.getUserId())
+                    .recipientEmail(r.getEmail())
+                    .recipientName(r.getName())
+                    .type(NotificationType.INVITATION_CANCELLED.name())
+                    .title("Invitación cancelada: " + req.getEventTitle())
+                    .message("Tu invitación al evento '" + req.getEventTitle()
+                            + "' fue cancelada por el organizador."
+                            + (req.getDetail() != null && !req.getDetail().isBlank()
+                            ? " Motivo: " + req.getDetail() : ""))
+                    .build());
+        }
     }
 
     // ── RF42.1 — Evento cancelado ─────────────────────────────────────────────
