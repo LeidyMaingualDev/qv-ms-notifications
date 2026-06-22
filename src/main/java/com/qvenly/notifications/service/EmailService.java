@@ -44,7 +44,7 @@ public class EmailService {
                                     String eventDescription, String eventLocation,
                                     String eventType, String startDatetime, String endDatetime) {
         try {
-            String link = frontendUrl + "/accept-invitation?token=" + token;
+            String link = frontendUrl + "/auth/accept-invitation?token=" + token;
             String header = headerTitle("Tienes una invitaci&oacute;n");
 
             String eventInfo = "<strong style=\"color:" + TEXT + ";\">" + eventTitle + "</strong>";
