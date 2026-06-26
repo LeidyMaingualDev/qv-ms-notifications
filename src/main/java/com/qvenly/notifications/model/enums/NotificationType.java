@@ -16,5 +16,6 @@ public enum NotificationType {
     MEMBER_LEFT,
     // Actividades
     ACTIVITY_ASSIGNED,
-    ACTIVITY_CANCELLED
+    ACTIVITY_CANCELLED,
+    ACTIVITY_UPDATED
 }
