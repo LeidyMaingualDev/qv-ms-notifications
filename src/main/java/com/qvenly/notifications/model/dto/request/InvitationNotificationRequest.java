@@ -27,7 +27,7 @@ public class InvitationNotificationRequest {
     @NotNull
     private Long eventId;
 
-    /** Rol asignado: siempre MEMBER en el flujo actual */
+    /** Rol con el que se invitó: ORGANIZER, STAFF o MEMBER, elegido por el organizador */
     @NotBlank
     private String eventRole;
 

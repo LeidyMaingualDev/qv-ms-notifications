@@ -41,8 +41,10 @@ public class NotificationService {
                 req.getEndDatetime());
 
         // 2. Notificación interna solo si tiene userId (usuario registrado)
+        // 2. Notificación interna solo si tiene userId (usuario registrado)
         StringBuilder message = new StringBuilder();
-        message.append("Fuiste invitado(a) al evento '").append(req.getEventTitle()).append("'.");
+        message.append("Fuiste invitado(a) al evento '").append(req.getEventTitle())
+                .append("' como ").append(emailService.translateRole(req.getEventRole())).append(".");
         if (req.getEventType() != null && !req.getEventType().isBlank()) {
             message.append(" Tipo: ").append(req.getEventType()).append(".");
         }
@@ -82,6 +84,26 @@ public class NotificationService {
                             ? " Motivo: " + req.getDetail() : ""))
                     .build());
         }
+    }
+
+    // ── Actividad actualizada ──────────────────────────────────────────────────
+
+    public void processActivityUpdated(ActivityNotificationRequest req) {
+        emailService.sendActivityUpdatedEmail(
+                req.getRecipientEmail(), req.getRecipientName(),
+                req.getActivityTitle(), req.getEventTitle(), req.getDetail());
+
+        Long resolvedUserId = req.getRecipientUserId() != null
+                ? req.getRecipientUserId() : authClient.findUserIdByEmail(req.getRecipientEmail());
+
+        authClient.saveInternalNotification(InternalNotificationRequestDTO.builder()
+                .userId(resolvedUserId)
+                .recipientEmail(req.getRecipientEmail())
+                .recipientName(req.getRecipientName())
+                .type(NotificationType.ACTIVITY_UPDATED.name())
+                .title("Actividad actualizada: " + req.getActivityTitle())
+                .message("La actividad '" + req.getActivityTitle() + "' fue actualizada.")
+                .build());
     }
 
     // ── RF42.1 — Evento cancelado ─────────────────────────────────────────────
@@ -164,8 +186,11 @@ public class NotificationService {
                 req.getActivityTitle(), req.getEventTitle(),
                 req.getDetail(), null, req.getActivityDatetime());
 
+        Long resolvedUserId = req.getRecipientUserId() != null
+                ? req.getRecipientUserId() : authClient.findUserIdByEmail(req.getRecipientEmail());
+
         authClient.saveInternalNotification(InternalNotificationRequestDTO.builder()
-                .userId(req.getRecipientUserId())
+                .userId(resolvedUserId)
                 .recipientEmail(req.getRecipientEmail())
                 .recipientName(req.getRecipientName())
                 .type(NotificationType.ACTIVITY_ASSIGNED.name())
@@ -182,8 +207,11 @@ public class NotificationService {
                 req.getRecipientEmail(), req.getRecipientName(),
                 req.getActivityTitle(), req.getEventTitle(), req.getDetail());
 
+        Long resolvedUserId = req.getRecipientUserId() != null
+                ? req.getRecipientUserId() : authClient.findUserIdByEmail(req.getRecipientEmail());
+
         authClient.saveInternalNotification(InternalNotificationRequestDTO.builder()
-                .userId(req.getRecipientUserId())
+                .userId(resolvedUserId)
                 .recipientEmail(req.getRecipientEmail())
                 .recipientName(req.getRecipientName())
                 .type(NotificationType.ACTIVITY_CANCELLED.name())

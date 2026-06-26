@@ -63,12 +63,17 @@ public class EmailService {
                 details.append("<br>Lugar: ").append(eventLocation);
             }
 
+            StringBuilder roleAndDetails = new StringBuilder();
+            roleAndDetails.append("Rol: <strong>").append(translateRole(eventRole)).append("</strong>");
+            if (details.length() > 0) {
+                roleAndDetails.append("<br>").append(details);
+            }
+
             String body = greeting(toName != null ? toName : "usuario")
                     + paragraph("Has sido invitado(a) a participar en el evento " + eventInfo + ".")
                     + (eventDescription != null && !eventDescription.isBlank()
                     ? paragraph(eventDescription) : "")
-                    + (details.length() > 0
-                    ? infoBox(details.toString(), "#f0fdfa", "#99f6e4", TEAL_DK) : "")
+                    + infoBox(roleAndDetails.toString(), "#f0fdfa", "#99f6e4", TEAL_DK)
                     + ctaButton(link, "Aceptar invitaci&oacute;n", TEAL)
                     + divider()
                     + fallbackLink(link, TEAL)
@@ -222,6 +227,28 @@ public class EmailService {
         }
     }
 
+    // ── Actividad actualizada ───────────────────────────────────────────────────
+
+    @Async
+    public void sendActivityUpdatedEmail(String toEmail, String toName,
+                                         String activityTitle, String eventTitle,
+                                         String detail) {
+        try {
+            String header = headerTitle("Actividad actualizada");
+            String body = greeting(toName != null ? toName : "usuario")
+                    + paragraph("La actividad <strong style=\"color:" + TEXT + ";\">"
+                    + activityTitle + "</strong> del evento <strong>" + eventTitle
+                    + "</strong> ha sido actualizada.")
+                    + (detail != null && !detail.isBlank()
+                    ? infoBox(detail, "#f0fdfa", "#99f6e4", TEAL_DK) : "")
+                    + ctaButton(frontendUrl + "/dashboard-user/events", "Ver el evento", TEAL);
+            send(toEmail, "Actualizaci\u00f3n en la actividad: " + activityTitle,
+                    baseTemplate(TEAL, header, body));
+        } catch (Exception e) {
+            log.error("Error al enviar actualización de actividad a {}: {}", toEmail, e.getMessage());
+        }
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     // MÉTODOS HELPER — Construcción de HTML
     // ═══════════════════════════════════════════════════════════════════════════
@@ -303,11 +330,12 @@ public class EmailService {
                 + note + "</p>";
     }
 
-    private String translateRole(String role) {
+    public String translateRole(String role) {
         if (role == null) return "";
         return switch (role.toUpperCase()) {
             case "ORGANIZER"  -> "Organizador";
             case "STAFF"      -> "Personal de apoyo";
+            case "MEMBER"     -> "Miembro";
             case "JUDGE"      -> "Juez";
             case "PARTICIPANT"-> "Participante";
             case "ATTENDEE"   -> "Asistente";

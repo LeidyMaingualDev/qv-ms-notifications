@@ -97,4 +97,13 @@ public class NotificationController {
         notificationService.processActivityCancelled(request);
         return ResponseEntity.ok(ApiResponse.success("Notificación de cancelación de actividad procesada."));
     }
+
+    /** Actividad actualizada */
+    @PostMapping("/activity-updated")
+    public ResponseEntity<ApiResponse<Void>> activityUpdated(
+            @Valid @RequestBody ActivityNotificationRequest request) {
+        log.info("Procesando notificación de actualización de actividad: {}", request.getActivityTitle());
+        notificationService.processActivityUpdated(request);
+        return ResponseEntity.ok(ApiResponse.success("Notificación de actualización de actividad procesada."));
+    }
 }
