@@ -246,8 +246,54 @@ public class EmailService {
                     baseTemplate(TEAL, header, body));
         } catch (Exception e) {
             log.error("Error al enviar actualización de actividad a {}: {}", toEmail, e.getMessage());
+
         }
     }
+
+    // - Envío de notificación por encuesta publicada 
+
+    @Async
+    public void sendSurveyPublishedEmail(String toEmail, String toName,
+                                        String surveyTitle, String eventTitle,
+                                        Long eventId, Long surveyId, String deadline) {
+        try {
+            String link = frontendUrl + "/dashboard-user/surveys";
+            String header = headerTitle("Tienes una encuesta por responder");
+            String body = greeting(toName != null ? toName : "usuario")
+                    + paragraph("El organizador del evento <strong style=\"color:" + TEXT + ";\">"
+                    + eventTitle + "</strong> publicó una nueva encuesta:")
+                    + infoBox("<strong>" + surveyTitle + "</strong>"
+                    + (deadline != null && !deadline.isBlank()
+                            ? "<br>Fecha l&iacute;mite: " + deadline : ""),
+                            "#f0fdfa", "#99f6e4", TEAL_DK)
+                    + paragraph("Tu opini&oacute;n es importante. Toma un momento para completarla.")
+                    + ctaButton(link, "Responder encuesta", TEAL);
+            send(toEmail, "Nueva encuesta: " + surveyTitle, baseTemplate(TEAL, header, body));
+        } catch (Exception e) {
+            log.error("Error al enviar notificación de encuesta a {}: {}", toEmail, e.getMessage());
+        }
+    }
+
+    // Encuesta cancelada
+
+        @Async
+        public void sendSurveyCancelledEmail(String toEmail, String toName,
+                                        String surveyTitle, String eventTitle,
+                                        String reason) {
+        try {
+                String header = headerTitle("Encuesta cancelada");
+                String body = greeting(toName != null ? toName : "usuario")
+                        + paragraph("La encuesta <strong style=\"color:" + TEXT + ";\">"
+                        + surveyTitle + "</strong> del evento <strong>" + eventTitle
+                        + "</strong> ha sido <strong style=\"color:" + RED + ";\">cancelada</strong>.")
+                        + (reason != null && !reason.isBlank()
+                        ? infoBox("Motivo: " + reason, "#fef2f2", "#fecaca", RED) : "")
+                        + paragraph("Si tienes dudas, contacta al organizador del evento.");
+                send(toEmail, "Encuesta cancelada: " + surveyTitle, baseTemplate(TEAL, header, body));
+        } catch (Exception e) {
+                log.error("Error al enviar cancelación de encuesta a {}: {}", toEmail, e.getMessage());
+        }
+        }
 
     // ═══════════════════════════════════════════════════════════════════════════
     // MÉTODOS HELPER — Construcción de HTML

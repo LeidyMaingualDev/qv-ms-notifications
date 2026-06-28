@@ -2,6 +2,7 @@ package com.qvenly.notifications.controller;
 
 import com.qvenly.notifications.model.dto.request.ActivityNotificationRequest;
 import com.qvenly.notifications.model.dto.request.EventNotificationRequest;
+import com.qvenly.notifications.model.dto.request.SurveyNotificationRequest;
 import com.qvenly.notifications.model.dto.request.InvitationNotificationRequest;
 import com.qvenly.notifications.model.dto.response.ApiResponse;
 import com.qvenly.notifications.service.NotificationService;
@@ -105,5 +106,27 @@ public class NotificationController {
         log.info("Procesando notificación de actualización de actividad: {}", request.getActivityTitle());
         notificationService.processActivityUpdated(request);
         return ResponseEntity.ok(ApiResponse.success("Notificación de actualización de actividad procesada."));
+
+            }
+            
+    /** Encuesta publicada */
+    @PostMapping("/survey-published")
+    public ResponseEntity<ApiResponse<Void>> surveyPublished(
+            @Valid @RequestBody SurveyNotificationRequest request) {
+        log.info("Procesando notificación de encuesta publicada: {}", request.getSurveyTitle());
+        notificationService.processSurveyPublished(request);
+        return ResponseEntity.ok(ApiResponse.success("Notificación de encuesta procesada."));
     }
+
+    /** Encuesta cancelada */
+    @PostMapping("/survey-cancelled")
+    public ResponseEntity<ApiResponse<Void>> surveyCancelled(
+            @Valid @RequestBody SurveyNotificationRequest request) {
+        log.info("Procesando notificación de encuesta cancelada: {}", request.getSurveyTitle());
+        notificationService.processSurveyCancelled(request);
+        return ResponseEntity.ok(ApiResponse.success("Notificación de cancelación de encuesta procesada."));
+        
+        }
+
+
 }

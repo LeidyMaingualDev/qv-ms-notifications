@@ -15,3 +15,4 @@ public class QvMsNotificationsApplication {
         SpringApplication.run(QvMsNotificationsApplication.class, args);
     }
 }
+ 
