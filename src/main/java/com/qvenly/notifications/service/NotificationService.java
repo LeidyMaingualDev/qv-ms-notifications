@@ -4,6 +4,7 @@ import com.qvenly.notifications.client.AuthInternalClient;
 import com.qvenly.notifications.client.dto.InternalNotificationRequestDTO;
 import com.qvenly.notifications.model.dto.request.ActivityNotificationRequest;
 import com.qvenly.notifications.model.dto.request.EventNotificationRequest;
+import com.qvenly.notifications.model.dto.request.SurveyNotificationRequest;
 import com.qvenly.notifications.model.dto.request.InvitationNotificationRequest;
 import com.qvenly.notifications.model.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
@@ -219,4 +220,50 @@ public class NotificationService {
                 .message("La actividad '" + req.getActivityTitle() + "' fue cancelada. Motivo: " + req.getDetail())
                 .build());
     }
+
+    // Encuesta publicada
+    public void processSurveyPublished(SurveyNotificationRequest req) {
+    for (EventNotificationRequest.Recipient r : req.getRecipients()) {
+        emailService.sendSurveyPublishedEmail(
+                r.getEmail(), r.getName(),
+                req.getSurveyTitle(), req.getEventTitle(),
+                req.getEventId(), req.getSurveyId(), req.getDeadline());
+
+        authClient.saveInternalNotification(InternalNotificationRequestDTO.builder()
+                .userId(r.getUserId())
+                .recipientEmail(r.getEmail())
+                .recipientName(r.getName())
+                .type(NotificationType.SURVEY_PUBLISHED.name())
+                .title("Nueva encuesta: " + req.getSurveyTitle())
+                .message("El organizador publicó la encuesta '"
+                        + req.getSurveyTitle() + "' para el evento '"
+                        + req.getEventTitle() + "'. ¡Respóndela antes de que venza!")
+                .build());
+        }
+      }
+
+        // Encuesta cancelada 
+       public void processSurveyCancelled(SurveyNotificationRequest req) {
+    for (EventNotificationRequest.Recipient r : req.getRecipients()) {
+        emailService.sendSurveyCancelledEmail(
+                r.getEmail(), r.getName(),
+                req.getSurveyTitle(), req.getEventTitle(),
+                req.getDeadline());
+
+        if (r.getUserId() == null || r.getUserId() == 0) {
+            log.warn("userId inválido para {}, se omite notificación interna", r.getEmail());
+            continue;
+        }
+
+        authClient.saveInternalNotification(InternalNotificationRequestDTO.builder()
+                .userId(r.getUserId())
+                .recipientEmail(r.getEmail())
+                .recipientName(r.getName())
+                .type(NotificationType.SURVEY_CANCELLED.name())
+                .title("Encuesta cancelada: " + req.getSurveyTitle())
+                .message("La encuesta '" + req.getSurveyTitle() + "' del evento '"
+                + req.getEventTitle() + "' fue cancelada. Motivo: " + req.getDeadline())
+                .build());
+    }
+}
 }

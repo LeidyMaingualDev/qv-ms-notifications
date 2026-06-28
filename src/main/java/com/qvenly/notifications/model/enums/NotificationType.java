@@ -17,5 +17,8 @@ public enum NotificationType {
     // Actividades
     ACTIVITY_ASSIGNED,
     ACTIVITY_CANCELLED,
-    ACTIVITY_UPDATED
+    ACTIVITY_UPDATED,
+    // Retroalimentación del evento
+    SURVEY_PUBLISHED,
+    SURVEY_CANCELLED
 }
