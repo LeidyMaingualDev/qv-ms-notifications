@@ -382,7 +382,6 @@ public class EmailService {
             case "ORGANIZER"  -> "Organizador";
             case "STAFF"      -> "Personal de apoyo";
             case "MEMBER"     -> "Miembro";
-            case "JUDGE"      -> "Juez";
             case "PARTICIPANT"-> "Participante";
             case "ATTENDEE"   -> "Asistente";
             default           -> role;
